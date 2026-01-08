@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steganography Detector - Protect Your Images</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7ff 0%, #ffffff 50%, #f0f8ff 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #333;
+        }
+        .hero-text {
+            animation: fadeInUp 1s ease-out;
+        }
+        .typewriter {
+            border-right: 2px solid #00ff00;
+            animation: blink-caret 1s step-end infinite;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+            animation: typing 3s steps(40, end) forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #00ff00; }
+        }
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(0, 255, 0, 0.3);
+            transition: width 0.6s, height 0.6s;
+            transform: translate(-50%, -50%);
+        }
+        .ripple:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        .data-bits {
+            position: absolute;
+            font-size: 14px;
+            color: #00ff00;
+            animation: matrixRain 12s linear infinite;
+            font-weight: bold;
+        }
+        @keyframes matrixRain {
+            0% { transform: translateY(-120vh); opacity: 1; }
+            100% { transform: translateY(120vh); opacity: 0; }
+        }
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s, transform 1s;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: opacity 1s, transform 1s;
+        }
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(100px);
+            transition: opacity 1s, transform 1s;
+        }
+        .slide-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .parallax {
+            transform: translateY(0);
+            transition: transform 0.5s ease-out;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 255, 0, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            position: relative;
+            overflow: hidden;
+            color: #000;
+        }
+        .feature-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.5);
+            border-color: rgba(0, 255, 255, 0.8);
+        }
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.2) 0%, transparent 70%);
+            animation: glow 3s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes glow {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); opacity: 0.8; }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0,255,0,0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0,255,0,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,255,0,0); }
+        }
+        /* Light tech/space theme background */
+        .tech-bg {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 25%, #e0f7ff 50%, #ffffff 75%, #f0f8ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .tech-bg::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%);
+            animation: nebulaShift 30s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes nebulaShift {
+            0% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-20px) translateY(20px); }
+            100% { transform: translateX(0) translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- Matrix Rain Effect -->
+    <div id="matrix" class="fixed inset-0 pointer-events-none"></div>
+
+    <!-- Hero Section -->
+    <section class="flex items-center justify-center min-h-screen px-4 parallax">
+        <div class="text-center hero-text">
+            <h1 class="text-5xl md:text-7xl font-bold mb-4 overflow-hidden pulse text-gray-900">
+                <span class="typewriter">Detect Hidden Truths in Images</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 slide-in-left">Unlock the secrets embedded in your media with our AI-powered Steganography Detector. All analysis happens on your device—your privacy, our priority.</p>
+<a href="{{ url_for('detection_page') }}">
+    <button class="bg-green-500 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg text-lg transition-all ripple shadow-lg">
+        Go to Detection Page
+    </button>
+</a>
+
+<a href="{{ url_for('steganography_page') }}">
+    <button class="bg-green-500 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg text-lg transition-all ripple shadow-lg">
+        Go to Steganography
+    </button>
+</a>
+
+        </div>
+    </section>
+
+    <!-- Features Section with Light Tech Theme -->
+    <section class="px-4 py-20 tech-bg" id="features-section">
+        <div class="max-w-6xl mx-auto relative z-10">
+            <h2 class="text-4xl font-bold text-center mb-12 fade-in text-green-600">Why Choose Our Detector?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="feature-card fade-in">
+                    <h3 class="text-2xl font-bold mb-4 text-yellow-600">AI-Powered Analysis</h3>
+                    <p>Advanced machine learning algorithms scan your images for steganographic patterns in real-time, using cutting-edge quantum-inspired techniques.</p>
+                </div>
+                <div class="feature-card slide-in-right">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-600">Client-Side Processing</h3>
+                    <p>Your files never leave your device. Complete privacy and security assured in this decentralized digital space.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <h3 class="text-2xl font-bold mb-4 text-red-600">Instant Results</h3>
+                    <p>Get detailed reports on potential hidden data within seconds of upload, powered by neural network acceleration.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 bg-gradient-to-r from-cyan-200 to-blue-200 fade-in">
+        <p class="text-gray-800">&copy; 2023 Steganography Detector. Built with AI for privacy and security.</p>
+    </footer>
+
+    <script>
+        // Generate matrix rain effect with instant start but staggered
+        const matrix = document.getElementById('matrix');
+        for (let i = 0; i < 50; i++) {
+            const bit = document.createElement('div');
+            bit.className = 'data-bits';
+            bit.textContent = ['0', '1'][Math.floor(Math.random() * 2)];
+            bit.style.left = Math.random() * 100 + '%';
+            bit.style.animationDelay = Math.random() * 2 + 's';  // 0-2 seconds random delay for stagger
+            matrix.appendChild(bit);
+        }
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Parallax effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElement = document.querySelector('.parallax');
+            if (parallaxElement) {
+                parallaxElement.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+
+        // Scroll to detection (placeholder for new page)
+        function scrollToDetection() {
+            // For now, alert; replace with actual link when provided
+            alert('Detection page will be linked here once TensorFlow.js model is integrated.');
+            // Example: window.location.href = 'your-detection-page.html';
+        }
+    </script>
+</body>
+</html>
+</content>
+</create_file>
