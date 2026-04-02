@@ -175,8 +175,13 @@
     function handleFile(file) {
       if (!file) return;
       const allowedTypes = ["image/png", "image/jpeg", "image/bmp"];
+      const maxFileSizeMb = 10;
       if (!allowedTypes.includes(file.type)) {
         alert("Please upload a valid image file (.png, .jpg, or .bmp).");
+        return;
+      }
+      if (file.size > maxFileSizeMb * 1024 * 1024) {
+        alert(`File too large. Please upload an image under ${maxFileSizeMb}MB.`);
         return;
       }
 
@@ -217,6 +222,17 @@
                 const resultClass = data.prediction.toLowerCase();
                 // Ensure confidence is a number between 0 and 100
                 const confidence = Math.max(0, Math.min(100, data.confidence ? parseFloat(data.confidence).toFixed(2) : 100));
+                const meanPatch = data.mean_patch_probability !== undefined
+                  ? (parseFloat(data.mean_patch_probability) * 100).toFixed(2)
+                  : "N/A";
+                const maxPatch = data.max_patch_probability !== undefined
+                  ? (parseFloat(data.max_patch_probability) * 100).toFixed(2)
+                  : "N/A";
+                const suspiciousRatio = data.suspicious_patch_ratio !== undefined
+                  ? (parseFloat(data.suspicious_patch_ratio) * 100).toFixed(2)
+                  : "N/A";
+                const suspiciousPatches = data.suspicious_patches ?? "N/A";
+                const totalPatches = data.total_patches ?? "N/A";
                 
                 resultBox.className = `result-box mt-6 text-base font-medium fade-in p-4 rounded-lg ${resultClass}`;
                 resultBox.innerHTML = `
@@ -234,6 +250,12 @@
                             class="confidence-bar ${resultClass}" 
                             style="width: ${confidence}%;"
                         ></div>
+                    </div>
+                    <div class="mt-4 text-left text-sm space-y-1 text-gray-300">
+                      <p>Patch Summary: ${suspiciousPatches}/${totalPatches} suspicious patches</p>
+                      <p>Mean Patch Stego Probability: ${meanPatch}%</p>
+                      <p>Max Patch Stego Probability: ${maxPatch}%</p>
+                      <p>Suspicious Patch Ratio: ${suspiciousRatio}%</p>
                     </div>
                 `;
             } else {
